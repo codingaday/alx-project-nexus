@@ -6,4 +6,3 @@ exclude =
     settings.py ,
     ./.venv/
 
-max-line-length = 95
