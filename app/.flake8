@@ -4,5 +4,14 @@ exclude =
     __pycache__
     manage.py,
     settings.py ,
-    ./.venv/
+    .venv,
+    *.pyc
 
+ignore =
+    E128,  # Ignore under-indented continuation lines (common in some styles)
+    E265,  # Ignore block comment style (e.g., '#...' vs '# ...')
+    W391,  # Ignore blank line at end of file
+    W293   # Ignore blank lines with whitespace
+    F401
+
+max-line-length = 120
