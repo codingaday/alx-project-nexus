@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Application Status Update</title>
+  </head>
+  <body>
+    <h1>Application Status Update</h1>
+    <p>Dear {{ job_seeker.username }},</p>
+    <p>
+      Your application for the position of {{ job_advert.title }} has been
+      updated to status: {{ new_status }}.
+    </p>
+    <p>Here are the details of your application:</p>
+    <ul>
+      <li><strong>Job Title:</strong> {{ job_advert.title }}</li>
+      <li><strong>Application ID:</strong> {{ application.id }}</li>
+      <li><strong>Application Date:</strong> {{ application.applied_at }}</li>
+    </ul>
+    <p>For any queries, please contact support.</p>
+    <p>Thank you for using our service.</p>
+  </body>
+</html>

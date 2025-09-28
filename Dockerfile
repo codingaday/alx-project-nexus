@@ -4,28 +4,26 @@ LABEL maintainer="ababeduguma27@gmail.com"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+WORKDIR /app
+
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
-COPY ./app /app
-WORKDIR /app
-EXPOSE 8000
-
-ARG DEV=false
 
 RUN apk update && \
-    apk add --no-cache bash shadow
-
-RUN python -m venv /py && \
+    apk add --no-cache bash shadow postgresql-client && \
+    apk add --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev zlib-dev jpeg-dev && \
+    python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
-    apk add --update --no-cache postgresql-client && \
-    apk add --update --no-cache --virtual .tmp-build-deps \
-        build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ "$DEV" = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt; \
     fi && \
     rm -rf /tmp && \
-    apk del .tmp-build-deps 
+    apk del .tmp-build-deps
+
+COPY . .
+
+RUN python manage.py collectstatic --noinput
 
 RUN groupadd -r django-group && \
     useradd \
@@ -35,6 +33,10 @@ RUN groupadd -r django-group && \
         --gid django-group \
         django-user
 
+RUN chown -R django-user:django-group /app
+
 ENV PATH="/py/bin:$PATH"
 
 USER django-user
+
+EXPOSE 8000

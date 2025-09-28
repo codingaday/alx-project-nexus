@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>New Job Application</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background: #007bff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>New Job Application</h1>
+      </div>
+
+      <div class="content">
+        <h2>Hello {{ employer.username }},</h2>
+
+        <p>You have received a new application for your job posting:</p>
+
+        <h3>Job Details:</h3>
+        <p><strong>Title:</strong> {{ job_advert.title }}</p>
+        <p><strong>Location:</strong> {{ job_advert.location }}</p>
+        <p><strong>Job Type:</strong> {{ job_advert.get_job_type_display }}</p>
+
+        <h3>Applicant Information:</h3>
+        <p><strong>Name:</strong> {{ job_seeker.username }}</p>
+        <p><strong>Email:</strong> {{ job_seeker.email }}</p>
+        {% if job_seeker.phone_number %}
+        <p><strong>Phone:</strong> {{ job_seeker.phone_number }}</p>
+        {% endif %} {% if job_seeker.location %}
+        <p><strong>Location:</strong> {{ job_seeker.location }}</p>
+        {% endif %}
+
+        <h3>Application Details:</h3>
+        <p>
+          <strong>Applied On:</strong> {{ application.applied_at|date:"F j, Y"
+          }}
+        </p>
+        {% if application.cover_letter %}
+        <p>
+          <strong>Cover Letter:</strong><br />{{ application.cover_letter }}
+        </p>
+        {% endif %}
+
+        <p style="margin-top: 20px">
+          <a
+            href="{{ protocol }}://{{ domain }}/admin/core/jobapplication/{{ application.id }}/change/"
+            style="
+              background: #007bff;
+              color: white;
+              padding: 10px 20px;
+              text-decoration: none;
+              border-radius: 5px;
+            "
+          >
+            View Application in Admin
+          </a>
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>This is an automated message from ALX Project Nexus Job Board.</p>
+        <p>Please do not reply to this email.</p>
+      </div>
+    </div>
+  </body>
+</html>

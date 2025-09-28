@@ -1,15 +1,27 @@
 # Git
-.git 
+.git
 .gitignore
 
 # Docker
-.docker 
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.prod.yml
 
 # Python
-app/__pycache__/
-app/*/__pycache__/
-app/*/*/__pycache__/
-app/*/*/*/__pycache__/
-.env/
-.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
 venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Other
+.env
+db.sqlite3
+logs/
