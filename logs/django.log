@@ -265,3 +265,4 @@ INFO 2025-09-28 01:47:34,937 basehttp 25337 130207017064128 code 400, message Ba
 ERROR 2025-09-28 01:47:34,938 basehttp 25337 130207017064128 You're accessing the development server over HTTPS, but it only supports HTTP.
 INFO 2025-09-28 01:47:34,954 basehttp 25337 130207017064128 code 400, message Bad request version ('«')
 ERROR 2025-09-28 01:47:34,954 basehttp 25337 130207017064128 You're accessing the development server over HTTPS, but it only supports HTTP.
+INFO 2025-09-28 11:32:29,555 autoreload 60311 134178054889600 Watching for file changes with StatReloader
