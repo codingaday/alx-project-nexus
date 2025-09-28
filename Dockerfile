@@ -28,11 +28,12 @@ RUN /py/bin/pip install -r /tmp/requirements.txt && \
 # Copy source code
 COPY . .
 
-# Set PATH and run Django commands
+# Set PATH for all subsequent commands
 ENV PATH="/py/bin:$PATH"
 
-RUN python manage.py collectstatic --noinput && \
-    python manage.py migrate --check
+# Run Django management commands with full path
+RUN /py/bin/python manage.py collectstatic --noinput --clear && \
+    /py/bin/python manage.py migrate --run-syncdb
 
 # Create django user
 RUN addgroup -g 1000 django && \
