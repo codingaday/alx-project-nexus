@@ -23,6 +23,9 @@ RUN apk update && \
 
 COPY . .
 
+# Set PATH before running Django commands
+ENV PATH="/py/bin:$PATH"
+
 RUN python manage.py collectstatic --noinput
 
 RUN groupadd -r django-group && \
@@ -34,8 +37,6 @@ RUN groupadd -r django-group && \
         django-user
 
 RUN chown -R django-user:django-group /app
-
-ENV PATH="/py/bin:$PATH"
 
 USER django-user
 
