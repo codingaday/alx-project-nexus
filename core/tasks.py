@@ -6,8 +6,8 @@ from django.utils.html import strip_tags  # type: ignore
 from .models import JobApplication, JobAdvert
 
 
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.db.models.signals import post_save  # type: ignore
+from django.dispatch import receiver  # type: ignore
 from django.utils import timezone
 
 @shared_task
