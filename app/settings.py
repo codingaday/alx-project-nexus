@@ -243,46 +243,30 @@ CACHES = {
     }
 }
 
-# Logging Configuration
+# Logging Configuration - Simplified for Render deployment
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
         'simple': {
             'format': '{levelname} {message}',
             'style': '{',
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
-        },
         'console': {
-            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': 'WARNING',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
-            'level': env('DJANGO_LOG_LEVEL', default='INFO'),
-            'propagate': False,
-        },
-        'core': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': False,
         },
     },
