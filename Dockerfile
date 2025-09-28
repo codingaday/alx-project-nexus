@@ -6,37 +6,38 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY ./requirements.txt /tmp/requirements.txt
-COPY ./requirements.dev.txt /tmp/requirements.dev.txt
-
+# System deps
 RUN apk update && \
     apk add --no-cache bash shadow postgresql-client && \
-    apk add --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev zlib-dev jpeg-dev && \
-    python -m venv /py && \
-    /py/bin/pip install --upgrade pip && \
-    /py/bin/pip install -r /tmp/requirements.txt && \
-    if [ "$DEV" = "true" ]; \
-        then /py/bin/pip install -r /tmp/requirements.dev.txt; \
-    fi && \
+    apk add --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev zlib-dev jpeg-dev
+
+# Create virtual environment
+RUN python -m venv /py
+ENV PATH="/py/bin:$PATH"
+
+# Upgrade pip inside venv
+RUN /py/bin/python -m pip install --upgrade pip setuptools wheel
+
+# Install Python deps
+COPY ./requirements.txt /tmp/requirements.txt
+COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+RUN /py/bin/python -m pip install -r /tmp/requirements.txt && \
+    if [ "$DEV" = "true" ]; then /py/bin/python -m pip install -r /tmp/requirements.dev.txt; fi && \
     rm -rf /tmp && \
     apk del .tmp-build-deps
 
+# Copy project
 COPY . .
 
-RUN python manage.py collectstatic --noinput
+# Collect static + migrate
+RUN /py/bin/python manage.py collectstatic --noinput --clear && \
+    /py/bin/python manage.py migrate --run-syncdb
 
-RUN groupadd -r django-group && \
-    useradd \
-        --no-log-init \
-        --create-home \
-        --shell /bin/bash \
-        --gid django-group \
-        django-user
+# Django user
+RUN addgroup -g 1000 django && \
+    adduser -D -s /bin/bash -u 1000 -G django django && \
+    chown -R django:django /app
 
-RUN chown -R django-user:django-group /app
-
-ENV PATH="/py/bin:$PATH"
-
-USER django-user
+USER django
 
 EXPOSE 8000
