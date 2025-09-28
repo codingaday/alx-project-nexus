@@ -42,5 +42,4 @@ USER django
 
 EXPOSE 8000
 
-# Runserver
 CMD ["/py/bin/python", "manage.py", "runserver", "0.0.0.0:8000"]
