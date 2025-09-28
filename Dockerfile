@@ -26,7 +26,7 @@ COPY . .
 # Set PATH before running Django commands
 ENV PATH="/py/bin:$PATH"
 
-RUN python manage.py collectstatic --noinput
+RUN /py/bin/python manage.py collectstatic --noinput
 
 RUN groupadd -r django-group && \
     useradd \
