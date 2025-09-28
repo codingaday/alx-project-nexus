@@ -204,3 +204,16 @@ INFO 2025-09-28 01:32:06,097 basehttp 18314 138402414454464 "GET /api/schema/ HT
 INFO 2025-09-28 01:32:15,946 basehttp 18314 138402414454464 "GET / HTTP/1.1" 302 0
 INFO 2025-09-28 01:32:15,962 basehttp 18314 138402414454464 "GET /api/docs/ HTTP/1.1" 200 4663
 INFO 2025-09-28 01:32:16,331 basehttp 18314 138402414454464 "GET /api/schema/ HTTP/1.1" 200 62024
+INFO 2025-09-28 01:35:30,572 autoreload 19852 137808969945216 Watching for file changes with StatReloader
+INFO 2025-09-28 01:35:35,341 basehttp 19852 137808868009664 "GET / HTTP/1.1" 302 0
+INFO 2025-09-28 01:35:35,440 basehttp 19852 137808868009664 "GET /api/docs/ HTTP/1.1" 200 4663
+INFO 2025-09-28 01:35:41,680 basehttp 19852 137808868009664 "GET /api/schema/ HTTP/1.1" 200 62024
+INFO 2025-09-28 01:35:47,640 basehttp 19852 137808868009664 "GET / HTTP/1.1" 302 0
+INFO 2025-09-28 01:35:47,648 basehttp 19852 137808868009664 "GET /api/docs/ HTTP/1.1" 200 4663
+INFO 2025-09-28 01:35:47,982 basehttp 19852 137808868009664 "GET /api/schema/ HTTP/1.1" 200 62024
+INFO 2025-09-28 01:36:12,244 autoreload 19852 137808969945216 /home/aby1/alx-project-nexus/core/views.py changed, reloading.
+INFO 2025-09-28 01:36:13,000 autoreload 20377 132442016100480 Watching for file changes with StatReloader
+INFO 2025-09-28 01:36:40,547 autoreload 20377 132442016100480 /home/aby1/alx-project-nexus/core/views.py changed, reloading.
+INFO 2025-09-28 01:36:41,594 autoreload 20538 125054555771008 Watching for file changes with StatReloader
+INFO 2025-09-28 01:36:45,924 autoreload 20538 125054555771008 /home/aby1/alx-project-nexus/core/views.py changed, reloading.
+INFO 2025-09-28 01:36:46,982 autoreload 20657 136093793878144 Watching for file changes with StatReloader

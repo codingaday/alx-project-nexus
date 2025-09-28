@@ -130,6 +130,7 @@ class JobAdvertDeleteView(generics.DestroyAPIView):
         return JobAdvert.objects.filter(employer=self.request.user)
 
 
+
 class JobApplicationListView(generics.ListAPIView):
     serializer_class = JobApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -138,13 +139,7 @@ class JobApplicationListView(generics.ListAPIView):
     ordering_fields = ['applied_at', 'updated_at']
     ordering = ['-applied_at']
 
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     if user.user_type == 'employer':
-    #         return JobApplication.objects.filter(job_advert__employer=user).select_related('job_advert', 'job_seeker')
-    #     else:
-    #         return JobApplication.objects.filter(job_seeker=user).select_related('job_advert', 'job_seeker')
-        
+   
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return JobApplication.objects.none()
