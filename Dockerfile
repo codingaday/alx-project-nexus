@@ -29,9 +29,11 @@ RUN /py/bin/python -m pip install -r /tmp/requirements.txt && \
 # Copy project
 COPY . .
 
-# Collect static + migrate
-RUN /py/bin/python manage.py collectstatic --noinput --clear && \
-    /py/bin/python manage.py migrate --run-syncdb
+# Collect static files (no database needed)
+RUN /py/bin/python manage.py collectstatic --noinput --clear
+
+# Run migrations with dummy database for build
+RUN DATABASE_URL="sqlite:///db.sqlite3" /py/bin/python manage.py migrate --run-syncdb
 
 # Django user
 RUN addgroup -g 1000 django && \
@@ -41,3 +43,5 @@ RUN addgroup -g 1000 django && \
 USER django
 
 EXPOSE 8000
+
+CMD ["/py/bin/python", "manage.py", "runserver", "0.0.0.0:8000"]

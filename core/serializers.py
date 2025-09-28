@@ -1,7 +1,7 @@
-from rest_framework import serializers
-from django.contrib.auth import authenticate
-from django.utils.translation import gettext_lazy as _
-from .models import User, JobAdvert, JobApplication, Skill, Category, JobAdvertSkill, JobAdvertCategory
+from rest_framework import serializers  # type: ignore
+from django.contrib.auth import authenticate  # type: ignore
+from django.utils.translation import gettext_lazy as _  # type: ignore
+from .models import User, JobAdvert, JobApplication, Skill, Category, JobAdvertSkill, JobAdvertCategory  # type: ignore
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -187,9 +187,9 @@ class JobApplicationSerializer(serializers.ModelSerializer):
                            'updated_at')
 
 
-from django.core.validators import FileExtensionValidator
-from django.core.exceptions import ValidationError
-from django.conf import settings
+from django.core.validators import FileExtensionValidator  # type: ignore
+from django.core.exceptions import ValidationError  # type: ignore
+from django.conf import settings  # type: ignore
 
 class JobApplicationCreateSerializer(serializers.ModelSerializer):
     resume = serializers.FileField(validators=[
