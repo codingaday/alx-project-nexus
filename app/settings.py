@@ -207,7 +207,7 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://alx-project-nexus-1lwg.onrender.com",
+    "https://https://alx-project-nexus-4-1lwg.onrender.com-1lwg.onrender.com",
 ])
 
 CORS_ALLOW_CREDENTIALS = True
