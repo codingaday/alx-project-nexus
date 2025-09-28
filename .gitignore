@@ -17,11 +17,33 @@ staticfiles/
 
 # Environment
 .env
+.env.local
+.env.prod
 
 # IDE
 .vscode/
 .idea/
 
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis
+.tox
+
 # Other
 .DS_Store
 *.swp
+*.tmp
+*.temp
+
+# OS
+Thumbs.db
+
+# Project specific
+logs/
+*.pid
