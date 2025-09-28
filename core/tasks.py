@@ -1,8 +1,8 @@
 from celery import shared_task
-from django.core.mail import send_mail
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.core.mail import send_mail  # type: ignore
+from django.conf import settings  # type: ignore
+from django.template.loader import render_to_string  # type: ignore
+from django.utils.html import strip_tags  # type: ignore
 from .models import JobApplication, JobAdvert
 
 
