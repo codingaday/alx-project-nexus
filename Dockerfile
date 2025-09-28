@@ -11,29 +11,32 @@ RUN apk update && \
     apk add --no-cache bash shadow postgresql-client && \
     apk add --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev zlib-dev jpeg-dev
 
-# Create virtual environment and install Python packages
-RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip
+# Create virtual environment FIRST
+RUN python -m venv /py
 
+# Set PATH immediately after creating venv
+ENV PATH="/py/bin:$PATH"
+
+# Upgrade pip in the virtual environment
+RUN pip install --upgrade pip
+
+# Copy requirements and install Python packages
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
-RUN /py/bin/pip install -r /tmp/requirements.txt && \
+RUN pip install -r /tmp/requirements.txt && \
     if [ "$DEV" = "true" ]; \
-        then /py/bin/pip install -r /tmp/requirements.dev.txt; \
+        then pip install -r /tmp/requirements.dev.txt; \
     fi && \
     rm -rf /tmp && \
     apk del .tmp-build-deps
 
-# Copy source code
+# Copy source code AFTER Python packages are installed
 COPY . .
 
-# Set PATH for all subsequent commands
-ENV PATH="/py/bin:$PATH"
-
-# Run Django management commands with full path
-RUN /py/bin/python manage.py collectstatic --noinput --clear && \
-    /py/bin/python manage.py migrate --run-syncdb
+# Run Django management commands (now PATH is already set)
+RUN python manage.py collectstatic --noinput --clear && \
+    python manage.py migrate --run-syncdb
 
 # Create django user
 RUN addgroup -g 1000 django && \
