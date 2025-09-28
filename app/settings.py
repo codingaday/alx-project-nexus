@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'django_filters',
-    'sslserver',
+    'django_extensions',
     'core',
 ]
 

@@ -1,4 +1,5 @@
-from rest_framework import generics, permissions, status, filters
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics, permissions, status, filters, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -122,7 +123,11 @@ class JobAdvertUpdateView(generics.UpdateAPIView):
         return JobAdvert.objects.filter(employer=self.request.user)
 
 
+class EmptySerializer(serializers.Serializer):
+    pass
+
 class JobAdvertDeleteView(generics.DestroyAPIView):
+    serializer_class = EmptySerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     queryset = JobAdvert.objects.all()
 
@@ -213,10 +218,12 @@ class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
 
 
-@api_view(['GET'])
-@permission_classes([permissions.AllowAny])
-def api_root(request):
-    return Response({
+@extend_schema(exclude=True)
+class ApiRootView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        return Response({
         'message': 'ALX Project Nexus API',
         'endpoints': {
             'auth': {
@@ -238,8 +245,8 @@ def api_root(request):
                 'update': '/api/applications/{id}/update/',
             },
             'skills': '/api/skills/',
-            'categories': '/api/categories/',
-            'docs': '/api/docs/',
-            'schema': '/api/schema/',
+        'categories': '/api/categories/',
+        'docs': '/api/docs/',
+        'schema': '/api/schema/',
         }
-    })
+    }, status=status.HTTP_200_OK)
