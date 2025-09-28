@@ -1,4 +1,4 @@
-from celery import shared_task
+from celery import shared_task  # type: ignore
 from django.core.mail import send_mail  # type: ignore
 from django.conf import settings  # type: ignore
 from django.template.loader import render_to_string  # type: ignore

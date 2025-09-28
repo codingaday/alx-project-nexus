@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin  # type: ignore
 from django.urls import path, include  # type: ignore
-from django.views.generic import RedirectView
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.views.generic import RedirectView  # type: ignore
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView  # type: ignore
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/api/docs/', permanent=False)),
