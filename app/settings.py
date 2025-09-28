@@ -243,15 +243,11 @@ CACHES = {
     }
 }
 
-# Logging Configuration
+# Logging Configuration - Simplified for Render deployment
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
         'simple': {
             'format': '{levelname} {message}',
             'style': '{',
@@ -259,24 +255,18 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'WARNING',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': env('DJANGO_LOG_LEVEL', default='INFO'),
-            'propagate': False,
-        },
-        'core': {
-            'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': False,
         },
     },
