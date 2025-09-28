@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
@@ -12,10 +12,11 @@ class User(AbstractUser):
     
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='job_seeker')
     company_name = models.CharField(max_length=255, blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    phone_number_validator = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone_number = models.CharField(validators=[phone_number_validator], max_length=17, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
-    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/%Y/%m/%d/', blank=True, null=True)
+    resume = models.FileField(upload_to='resumes/%Y/%m/%d/', blank=True, null=True)
     website = models.URLField(blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     
@@ -43,7 +44,7 @@ class JobAdvert(models.Model):
         ('executive', 'Executive'),
     )
     
-    employer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_adverts')
+    employer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='job_adverts')
     title = models.CharField(max_length=255)
     description = models.TextField()
     requirements = models.TextField()
@@ -89,10 +90,10 @@ class JobApplication(models.Model):
         ('withdrawn', 'Withdrawn'),
     )
     
-    job_seeker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_applications')
+    job_seeker = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='job_applications')
     job_advert = models.ForeignKey(JobAdvert, on_delete=models.CASCADE, related_name='applications')
     cover_letter = models.TextField()
-    resume = models.FileField(upload_to='application_resumes/')
+    resume = models.FileField(upload_to='application_resumes/%Y/%m/%d/')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     applied_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

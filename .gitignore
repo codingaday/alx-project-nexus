@@ -1,0 +1,17 @@
+.env
+venv
+venv/
+env/
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.DS_Store
+
+*.log
+*.pot
+*.mo
+*.swp
+

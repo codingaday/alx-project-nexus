@@ -6,134 +6,58 @@ from django.utils.html import strip_tags
 from .models import JobApplication, JobAdvert
 
 
-@shared_task
-def send_application_notification_email(application_id):
-    """
-    Send email notification to employer when a new job application is submitted
-    """
-    try:
-        application = JobApplication.objects.select_related(
-            'job_advert', 'job_advert__employer', 'job_seeker'
-        ).get(id=application_id)
-        
-        employer = application.job_advert.employer
-        job_seeker = application.job_seeker
-        job_advert = application.job_advert
-        
-        subject = f"New Application for {job_advert.title}"
-        
-        html_message = render_to_string('emails/new_application.html', {
-            'employer': employer,
-            'job_seeker': job_seeker,
-            'job_advert': job_advert,
-            'application': application,
-        })
-        
-        plain_message = strip_tags(html_message)
-        
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[employer.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        return f"Notification sent to {employer.email}"
-        
-    except JobApplication.DoesNotExist:
-        return "Application not found"
-    except Exception as e:
-        return f"Error sending email: {str(e)}"
-
-
-@shared_task
-def send_application_status_email(application_id, old_status, new_status):
-    """
-    Send email notification to job seeker when application status changes
-    """
-    try:
-        application = JobApplication.objects.select_related(
-            'job_advert', 'job_seeker'
-        ).get(id=application_id)
-        
-        job_seeker = application.job_seeker
-        job_advert = application.job_advert
-        
-        subject = f"Application Status Update: {job_advert.title}"
-        
-        html_message = render_to_string('emails/application_status_update.html', {
-            'job_seeker': job_seeker,
-            'job_advert': job_advert,
-            'application': application,
-            'old_status': old_status,
-            'new_status': new_status,
-        })
-        
-        plain_message = strip_tags(html_message)
-        
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[job_seeker.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        return f"Status update sent to {job_seeker.email}"
-        
-    except JobApplication.DoesNotExist:
-        return "Application not found"
-    except Exception as e:
-        return f"Error sending email: {str(e)}"
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 
 @shared_task
 def send_welcome_email(user_id):
-    """
-    Send welcome email to new users
-    """
-    try:
-        from .models import User
-        user = User.objects.get(id=user_id)
-        
-        subject = "Welcome to ALX Project Nexus Job Board"
-        
-        html_message = render_to_string('emails/welcome.html', {
-            'user': user,
-        })
-        
-        plain_message = strip_tags(html_message)
-        
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        return f"Welcome email sent to {user.email}"
-        
-    except User.DoesNotExist:
-        return "User not found"
-    except Exception as e:
-        return f"Error sending welcome email: {str(e)}"
-
+    from .models import User
+    user = User.objects.get(id=user_id)
+    subject = 'Welcome to ALX Project Nexus'
+    html_message = render_to_string('emails/welcome.html', {'user': user})
+    plain_message = strip_tags(html_message)
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = user.email
+    send_mail(subject, plain_message, from_email, [to], html_message=html_message)
 
 @shared_task
-def check_expired_job_adverts():
+def send_application_notification_email(application_id):
+    application = JobApplication.objects.get(id=application_id)
+    subject = f'New Application for {application.job_advert.title}'
+    html_message = render_to_string('emails/new_application.html', {'application': application})
+    plain_message = strip_tags(html_message)
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to = application.job_advert.employer.email
+    send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+
+@receiver(post_save, sender=JobApplication)
+def update_job_advert_counts(sender, instance, **kwargs):
     """
-    Check for job adverts that have passed their application deadline
-    and mark them as inactive
+    Signal handler to update job advert counts automatically
+    after a new application is submitted or status changes
     """
-    from django.utils import timezone
-    expired_count = JobAdvert.objects.filter(
-        is_active=True,
-        application_deadline__lt=timezone.now().date()
-    ).update(is_active=False)
-    
-    return f"Marked {expired_count} job adverts as expired"
+    if isinstance(instance, JobApplication):
+        job_advert = instance.job_advert
+        
+        # Update applications count by incrementing by 1 (not 0 for simulation purposes)
+        job_advert.applications_count += 1
+        job_advert.save()
+        
+        # Optionally, update other fields based on the application status change
+        # For example, if the application is accepted, update the company's metrics
+        
+        if hasattr(instance, 'status') and instance.status == 'accepted':
+            # Update the employer's metrics or notification
+            pass
+
+@receiver(post_save, sender=JobAdvert)
+def set_default_application_deadline(sender, instance, created, **kwargs):
+    """
+    Signal handler to set default application deadline if not provided
+    when a new job advert is created
+    """
+    if created and not instance.application_deadline:
+        from datetime import timedelta
+        instance.application_deadline = timezone.now().date() + timedelta(days=30)
+        instance.save()

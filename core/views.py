@@ -14,6 +14,7 @@ from .serializers import (
     JobApplicationCreateSerializer, SkillSerializer, CategorySerializer
 )
 from .tasks import send_application_notification_email, send_welcome_email
+from .permissions import IsOwnerOrReadOnly
 
 
 class RegisterView(generics.CreateAPIView):
@@ -63,7 +64,7 @@ class JobAdvertListView(generics.ListAPIView):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        queryset = JobAdvert.objects.filter(is_active=True)
+        queryset = JobAdvert.objects.filter(is_active=True).prefetch_related('skills__skill', 'categories__category')
         
         # Filter by skills
         skills = self.request.query_params.getlist('skills')
@@ -114,7 +115,7 @@ class JobAdvertCreateView(generics.CreateAPIView):
 
 class JobAdvertUpdateView(generics.UpdateAPIView):
     serializer_class = JobAdvertCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     queryset = JobAdvert.objects.all()
 
     def get_queryset(self):
@@ -122,7 +123,7 @@ class JobAdvertUpdateView(generics.UpdateAPIView):
 
 
 class JobAdvertDeleteView(generics.DestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     queryset = JobAdvert.objects.all()
 
     def get_queryset(self):
@@ -140,9 +141,9 @@ class JobApplicationListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user.user_type == 'employer':
-            return JobApplication.objects.filter(job_advert__employer=user)
+            return JobApplication.objects.filter(job_advert__employer=user).select_related('job_advert', 'job_seeker')
         else:
-            return JobApplication.objects.filter(job_seeker=user)
+            return JobApplication.objects.filter(job_seeker=user).select_related('job_advert', 'job_seeker')
 
 
 class JobApplicationDetailView(generics.RetrieveAPIView):
@@ -174,10 +175,6 @@ class JobApplicationCreateView(generics.CreateAPIView):
         
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        
-        # Update applications count
-        job_advert.applications_count += 1
-        job_advert.save()
         
         # Send notification email asynchronously
         send_application_notification_email.delay(serializer.instance.id)

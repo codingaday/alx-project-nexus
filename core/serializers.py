@@ -134,19 +134,16 @@ class JobAdvertCreateSerializer(serializers.ModelSerializer):
         )
         
         # Add skills
-        for skill_id in skill_ids:
-            JobAdvertSkill.objects.create(
-                job_advert=job_advert,
-                skill_id=skill_id,
-                importance_level=3  # Default importance
-            )
+        JobAdvertSkill.objects.bulk_create([
+            JobAdvertSkill(job_advert=job_advert, skill_id=skill_id, importance_level=3)
+            for skill_id in skill_ids
+        ])
         
         # Add categories
-        for category_id in category_ids:
-            JobAdvertCategory.objects.create(
-                job_advert=job_advert,
-                category_id=category_id
-            )
+        JobAdvertCategory.objects.bulk_create([
+            JobAdvertCategory(job_advert=job_advert, category_id=category_id)
+            for category_id in category_ids
+        ])
         
         return job_advert
     
@@ -162,21 +159,18 @@ class JobAdvertCreateSerializer(serializers.ModelSerializer):
         # Update skills if provided
         if skill_ids is not None:
             instance.skills.all().delete()
-            for skill_id in skill_ids:
-                JobAdvertSkill.objects.create(
-                    job_advert=instance,
-                    skill_id=skill_id,
-                    importance_level=3
-                )
+            JobAdvertSkill.objects.bulk_create([
+                JobAdvertSkill(job_advert=instance, skill_id=skill_id, importance_level=3)
+                for skill_id in skill_ids
+            ])
         
         # Update categories if provided
         if category_ids is not None:
             instance.categories.all().delete()
-            for category_id in category_ids:
-                JobAdvertCategory.objects.create(
-                    job_advert=instance,
-                    category_id=category_id
-                )
+            JobAdvertCategory.objects.bulk_create([
+                JobAdvertCategory(job_advert=instance, category_id=category_id)
+                for category_id in category_ids
+            ])
         
         return instance
 
@@ -193,11 +187,27 @@ class JobApplicationSerializer(serializers.ModelSerializer):
                            'updated_at')
 
 
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+from django.conf import settings
+
 class JobApplicationCreateSerializer(serializers.ModelSerializer):
+    resume = serializers.FileField(validators=[
+        FileExtensionValidator(allowed_extensions=settings.ALLOWED_FILE_EXTENSIONS, message="Invalid file type"),
+    ])
+    
     class Meta:
         model = JobApplication
         fields = ('cover_letter', 'resume')
     
+    def validate(self, data):
+        job_seeker = self.context['request'].user
+        if job_seeker.user_type != 'job_seeker':
+            raise serializers.ValidationError(
+                _("Only job seekers can apply for jobs.")
+            )
+        return data
+
     def create(self, validated_data):
         job_advert_id = self.context['job_advert_id']
         job_seeker = self.context['request'].user
@@ -212,6 +222,6 @@ class JobApplicationCreateSerializer(serializers.ModelSerializer):
         
         return JobApplication.objects.create(
             job_seeker=job_seeker,
-            job_advert_id=job_advert_id,
+            job_advert_id= job_advert_id,
             **validated_data
         )
