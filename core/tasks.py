@@ -3,7 +3,7 @@ from django.core.mail import send_mail  # type: ignore
 from django.conf import settings  # type: ignore
 from django.template.loader import render_to_string  # type: ignore
 from django.utils.html import strip_tags  # type: ignore
-from .models import JobApplication, JobAdvert
+from .models import JobApplication, JobAdvert  # type: ignore
 
 
 from django.db.models.signals import post_save  # type: ignore
@@ -12,7 +12,7 @@ from django.utils import timezone
 
 @shared_task
 def send_welcome_email(user_id):
-    from .models import User
+    from .models import User  # type: ignore
     user = User.objects.get(id=user_id)
     subject = 'Welcome to ALX Project Nexus'
     html_message = render_to_string('emails/welcome.html', {'user': user})
@@ -58,6 +58,6 @@ def set_default_application_deadline(sender, instance, created, **kwargs):
     when a new job advert is created
     """
     if created and not instance.application_deadline:
-        from datetime import timedelta
+        from datetime import timedelta  # type: ignore
         instance.application_deadline = timezone.now().date() + timedelta(days=30)
         instance.save()
