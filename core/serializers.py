@@ -225,3 +225,6 @@ class JobApplicationCreateSerializer(serializers.ModelSerializer):
             job_advert_id= job_advert_id,
             **validated_data
         )
+
+class EmptySerializer(serializers.Serializer):
+    pass
