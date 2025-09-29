@@ -1,11 +1,10 @@
 from drf_spectacular.utils import extend_schema  # type: ignore
 from rest_framework import generics, permissions, status, filters, serializers  # type: ignore
 from rest_framework.response import Response  # type: ignore
-from rest_framework.decorators import api_view, permission_classes  # type: ignore
+from rest_framework.decorators import api_view  # type: ignore
 from rest_framework_simplejwt.tokens import RefreshToken  # type: ignore
 from django_filters.rest_framework import DjangoFilterBackend  # type: ignore
 from django.shortcuts import get_object_or_404  # type: ignore
-from django.db.models import Q  # type: ignore
 from django.utils import timezone  # type: ignore
 
 from .models import User, JobAdvert, JobApplication, Skill, Category
