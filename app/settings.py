@@ -36,7 +36,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost', '127.0.0.1', 'alx-project-nexus-5-ivj6.onrender.com'
+])
 
 
 
@@ -108,7 +110,14 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'job_board_db_1msj',
+        'USER': 'job_board_db_1msj_user',
+        'PASSWORD': 'hSnGoSa8u7fHvhK1RMTw6T7kFnvzUjn4',
+        'HOST': 'dpg-d3cgdsq4d50c73chlegg-a.oregon-postgres.render.com',
+        'PORT': '5432',
+    }
 }
 
 
@@ -206,7 +215,7 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://https://alx-project-nexus-4-1lwg.onrender.com-1lwg.onrender.com",
+    "https://alx-project-nexus-5-ivj6.onrender.com",
 ])
 
 CORS_ALLOW_CREDENTIALS = True
