@@ -16,9 +16,8 @@ static/
 staticfiles/
 
 # Environment
-.env
-.env.local
-.env.prod
+.env*
+!.env.example
 
 # IDE
 .vscode/

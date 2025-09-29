@@ -25,8 +25,13 @@ class RegisterView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        # Send welcome email asynchronously
-        send_welcome_email.delay(user.id)
+        # Send welcome email asynchronously (only if Celery is available)
+        try:
+            send_welcome_email.delay(user.id)
+        except Exception as e:
+            # If Celery fails, just log it but don't fail the registration
+            print(f"Warning: Could not send welcome email: {e}")
+            pass
 
 
 class LoginView(generics.GenericAPIView):
@@ -184,8 +189,13 @@ class JobApplicationCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         
-        # Send notification email asynchronously
-        send_application_notification_email.delay(serializer.instance.id)
+        # Send notification email asynchronously (only if Celery is available)
+        try:
+            send_application_notification_email.delay(serializer.instance.id)
+        except Exception as e:
+            # If Celery fails, just log it but don't fail the application
+            print(f"Warning: Could not send application notification email: {e}")
+            pass
         
         return Response(
             JobApplicationSerializer(serializer.instance).data,

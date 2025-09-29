@@ -36,9 +36,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
-
-
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost', '127.0.0.1', 'alx-project-nexus-5-ivj6.onrender.com'
+])
 
 
 # Application definition
@@ -84,6 +84,13 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_BROWSER_XSS_FILTER = True
 
+# Development settings - explicitly disable SSL redirects
+if DEBUG:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SECURE_HSTS_SECONDS = 0
+
 ROOT_URLCONF = 'app.urls'
 
 TEMPLATES = [
@@ -107,8 +114,14 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
+# Configure database from DATABASE_URL environment variable
 DATABASES = {
-    'default': env.db(),
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 
@@ -189,6 +202,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # Allow API to be browsable for testing
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  # For testing
+    ],
 }
 
 # JWT Configuration
@@ -206,7 +224,7 @@ CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://https://alx-project-nexus-4-1lwg.onrender.com-1lwg.onrender.com",
+    "https://alx-project-nexus-5-ivj6.onrender.com",
 ])
 
 CORS_ALLOW_CREDENTIALS = True
@@ -217,9 +235,21 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Professional Job Board API Backend',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
     'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
         'persistAuthorization': True,
+        'displayRequestDuration': True,
+        'docExpansion': 'none',
+        'defaultModelRendering': 'model',
+        'filter': True,
+        'showCommonExtensions': True,
     },
+    'SECURITY': [
+        {
+            'Bearer': []
+        }
+    ],
 }
 
 # Celery Configuration
@@ -228,8 +258,8 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://redis:6379
 
 # Email Configuration (for Celery tasks)
 # For production, consider using a transactional email service like SendGrid, Postmark, or Amazon SES.
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='')
 EMAIL_PORT = env('EMAIL_PORT', default=587)
 EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')

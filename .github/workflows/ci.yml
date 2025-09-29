@@ -1,28 +1,175 @@
 ---
-name: CI
-on: [push]
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+# Define environment variables for CI
+env:
+  DJANGO_SETTINGS_MODULE: app.settings
+  SECRET_KEY: django-insecure-ci-key-for-testing-only-not-for-production-1234
+  DEBUG: True
+  DATABASE_URL: postgresql://postgres:password@localhost:5432/test_db
 
 jobs:
-  test-lint:
-    name: Test and Lint
+  # 🧪 Quality Checks (Linting & Security)
+  quality-checks:
+    name: Quality & Security
     runs-on: ubuntu-latest
     steps:
-      - name: Login to DockerHub
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements.dev.txt
+
+      - name: 🔍 Security Scan
+        run: |
+          pip install safety
+          safety check --full-report
+
+      - name: 🧹 Lint Code
+        run: |
+          flake8 --exclude=./.venv/,migrations,__pycache__ --max-line-length=100
+
+      - name: 🔧 Check Django Configurations
+        run: |
+          python manage.py check --settings=app.settings
+          python manage.py validate_templates
+
+  # 🧪 Testing with Database
+  test:
+    name: Django Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements.dev.txt
+          pip install coverage
+
+      - name: 🗄️ Run Migrations
+        run: |
+          python manage.py migrate --settings=${{ env.DJANGO_SETTINGS_MODULE }}
+
+      - name: 👤 Create Test Superuser (Optional)
+        run: |
+          echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='testuser').exists() or User.objects.create_superuser('testuser', 'test@example.com', 'testpass123')" | python manage.py shell --settings=app.settings
+
+      - name: 🧪 Run Tests with Coverage
+        run: |
+          coverage run manage.py test --settings=app.settings --verbosity=2
+          coverage report --fail-under=75
+          coverage html
+
+      - name: 📊 Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # 🐳 Docker Build & Security Scan
+  docker-security:
+    name: Docker Build & Security
+    runs-on: ubuntu-latest
+    needs: [quality-checks]
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔗 Login to DockerHub (Optional)
         uses: docker/login-action@v3
+        if: github.ref == 'refs/heads/main'
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Checkout
+      - name: 🏗️ Build and Test Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false # Set to true for production deployments
+          tags: alx-project-nexus:latest
+          build-args: |
+            SECRET_KEY=django-insecure-ci-build-key-only-for-docker-testing
+            DEV=false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🔍 Run Docker Trivy Security Scan
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          aquasecurity/trivy:latest image \
+          --no-progress \
+          --exit-code 1 \
+          --severity HIGH,CRITICAL \
+          alx-project-nexus:latest
+
+      - name: 🧪 Test Docker Container
+        run: |
+          docker run --rm alx-project-nexus:latest python manage.py check --settings=app.settings
+
+  # 🚀 Deploy (Only on Main Branch)
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [test, docker-security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: 📥 Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install docker-compose
+      - name: 🚀 Deploy to Render (Example)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          echo "🚀 Deployment ready for Render webhook integration"
+          echo "📝 To enable: Add RENDER_DEPLOY_WEBHOOK to GitHub Secrets"
+          echo "🔗 Get webhook URL from Render → Service → Settings → Deploy Webhook"
+          # Example: curl -X POST "$RENDER_WEBHOOK_URL"
+          # Replace $RENDER_WEBHOOK_URL with your actual webhook when ready
 
-      - name: Test
-        run: docker-compose run --rm app sh -c "python manage.py test"
-
-      - name: Lint
-        run: docker-compose run --rm app sh -c "flake8 --exclude=./.venv"
+      - name: ✅ Deployment Notification
+        run: |
+          echo "🎉 ALX Project Nexus deployed successfully!"

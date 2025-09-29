@@ -16,11 +16,269 @@ Including another URLconf
 """
 from django.contrib import admin  # type: ignore
 from django.urls import path, include  # type: ignore
-from django.views.generic import RedirectView  # type: ignore
+from django.views.generic import TemplateView  # type: ignore
+from django.http import HttpResponse  # type: ignore
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView  # type: ignore
 
+def api_root(request):
+    """Simple and clean API root view"""
+    return HttpResponse('''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>🚀 ALX Project Nexus API</title>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #f8f9fa;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                background: #007bff;
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 10px 10px 0 0;
+            }
+            .header h1 {
+                margin: 0;
+                font-size: 2.2em;
+            }
+            .header p {
+                margin: 10px 0 0 0;
+                opacity: 0.9;
+            }
+            .content {
+                padding: 30px;
+            }
+            .quick-links {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            .quick-links a {
+                display: inline-block;
+                margin: 0 15px;
+                padding: 15px 25px;
+                background: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                transition: background 0.3s;
+            }
+            .quick-links a:hover {
+                background: #0056b3;
+            }
+            .section {
+                margin-bottom: 30px;
+            }
+            .section h2 {
+                color: #007bff;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            .endpoint {
+                margin: 15px 0;
+                padding: 15px;
+                background: #f8f9fa;
+                border-left: 4px solid #007bff;
+                border-radius: 0 5px 5px 0;
+            }
+            .method {
+                font-weight: bold;
+                color: #007bff;
+                margin-right: 10px;
+            }
+            .method.get::before { content: "GET "; }
+            .method.post::before { content: "POST "; }
+            .method.put::before { content: "PUT "; }
+            .method.delete::before { content: "DELETE "; }
+            .endpoint strong {
+                color: #333;
+            }
+            .endpoint a {
+                color: #007bff;
+                text-decoration: none;
+            }
+            .endpoint a:hover {
+                text-decoration: underline;
+            }
+            .stats {
+                background: #e9ecef;
+                padding: 20px;
+                border-radius: 5px;
+                margin: 30px 0;
+            }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+                text-align: center;
+            }
+            .stat-number {
+                font-size: 2em;
+                font-weight: bold;
+                color: #007bff;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #666;
+                border-top: 1px solid #eee;
+                margin-top: 30px;
+            }
+            @media (max-width: 600px) {
+                .quick-links a {
+                    display: block;
+                    margin: 10px 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🚀 ALX Project Nexus API</h1>
+                <p>Professional Job Board Backend</p>
+            </div>
+
+            <div class="content">
+                <div class="quick-links">
+                    <a href="/api/docs/" target="_blank">📚 API Documentation</a>
+                    <a href="/admin/">⚙️ Admin Panel</a>
+                </div>
+
+                <div class="section">
+                    <h2>🔗 Available Endpoints</h2>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong><a href="/api/adverts/">/api/adverts/</a></strong> - List all job advertisements
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong><a href="/api/skills/">/api/skills/</a></strong> - List all available skills
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong><a href="/api/categories/">/api/categories/</a></strong> - List all job categories
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <strong>/api/auth/register/</strong> - User registration
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <strong>/api/auth/login/</strong> - User login (returns JWT tokens)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get put">GET/PUT</span>
+                        <strong>/api/auth/profile/</strong> - User profile management
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong>/api/adverts/{id}/</strong> - Get specific job advert details
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <strong>/api/adverts/create/</strong> - Create new job advert (Employers only)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <strong>/api/adverts/{id}/update/</strong> - Update job advert (Owner only)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <strong>/api/adverts/{id}/delete/</strong> - Delete job advert (Owner only)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <strong>/api/adverts/{id}/apply/</strong> - Apply for a job (Job Seekers only)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong>/api/applications/</strong> - List applications (Role-based access)
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <strong>/api/applications/{id}/</strong> - Get application details
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <strong>/api/applications/{id}/update/</strong> - Update application status (Employer only)
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <h2 style="text-align: center; margin-bottom: 20px; color: #333;">📊 Sample Data Available</h2>
+                    <div class="stats-grid">
+                        <div>
+                            <div class="stat-number">21</div>
+                            <div>Sample Users</div>
+                            <small>16 Job Seekers, 5 Employers</small>
+                        </div>
+                        <div>
+                            <div class="stat-number">25</div>
+                            <div>Job Postings</div>
+                            <small>With detailed descriptions</small>
+                        </div>
+                        <div>
+                            <div class="stat-number">128</div>
+                            <div>Skills</div>
+                            <small>Technical & Soft skills</small>
+                        </div>
+                        <div>
+                            <div class="stat-number">25</div>
+                            <div>Categories</div>
+                            <small>Job categories</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>🚀 Quick Start</h2>
+                    <ol>
+                        <li>Visit the <a href="/api/docs/" target="_blank">API Documentation</a></li>
+                        <li>Click "Authorize" to login</li>
+                        <li>Test endpoints interactively</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Built with Django & Django REST Framework | ALX Africa Software Engineering Program</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ''', content_type='text/html')
+
 urlpatterns = [
-    path('', RedirectView.as_view(url='/api/docs/', permanent=False)),
+    path('', api_root, name='api-root'),
     path('admin/', admin.site.urls),
     path('api/', include('core.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

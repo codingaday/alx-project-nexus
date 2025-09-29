@@ -1,6 +1,8 @@
 FROM python:3.11-alpine
 LABEL maintainer="ababeduguma27@gmail.com"
 
+ARG SECRET_KEY=django-insecure-build-time-key-only-used-for-collectstatic-not-for-production
+ENV SECRET_KEY=$SECRET_KEY
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 

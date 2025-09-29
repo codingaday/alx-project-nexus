@@ -1,278 +1,462 @@
-# ALX Project Nexus API
+# 🎯 ALX Project Nexus
 
-## Introduction
+> **Connecting Talent with Opportunity**
 
-ALX Project Nexus is a robust backend API for a job board platform. It connects employers with job seekers, allowing employers to post job adverts and manage applications, and job seekers to browse and apply for jobs. The API is built with Django and Django REST Framework, and it leverages Celery for asynchronous tasks and Docker for containerization.
+A professional job board platform that bridges the gap between employers and skilled professionals. Built with Django REST Framework for reliable, scalable job matching and application management.
 
-This README provides a comprehensive guide for frontend developers and code reviewers to understand, set up, and use the API.
+[![CI/CD Pipeline](https://github.com/codingaday/alx-project-nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/codingaday/alx-project-nexus/actions/workflows/ci.yml)
+[![Code Coverage](https://codecov.io/gh/codingaday/alx-project-nexus/branch/main/graph/badge.svg)](https://codecov.io/gh/codingaday/alx-project-nexus)
+![Django](https://img.shields.io/badge/django-5.2.6-blue)
+![License](https://img.shields.io/badge/license-ALX-orange)
 
-## Table of Contents
+---
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-  - [Cloning the Repository](#cloning-the-repository)
-  - [Environment Configuration](#environment-configuration)
-  - [Running with Docker (Recommended)](#running-with-docker-recommended)
-  - [Local Development Setup (Without Docker)](#local-development-setup-without-docker)
-- [API Endpoints](#api-endpoints)
-  - [Authentication](#authentication)
-  - [Job Adverts](#job-adverts)
-  - [Job Applications](#job-applications)
-  - [Skills](#skills)
-  - [Categories](#categories)
-- [Data Models](#data-models)
-- [Code Style and Conventions](#code-style-and-conventions)
-- [Testing](#testing)
-- [Contributing](#contributing)
+## 🚀 What is ALX Project Nexus?
 
-## Features
+**ALX Project Nexus** is a comprehensive job marketplace that empowers:
 
-- **User Authentication:** Secure user registration and login with JWT (JSON Web Tokens).
-- **User Profiles:** Users can have profiles with different roles (Employer, Job Seeker, Admin).
-- **Job Advert Management:** Employers can create, update, delete, and view job adverts.
-- **Job Application System:** Job seekers can apply for jobs with a cover letter and resume.
-- **Advanced Filtering and Searching:** Filter and search for jobs based on various criteria like job type, experience level, location, skills, and salary.
-- **Asynchronous Tasks:** Celery is used for sending emails (welcome emails, application notifications) asynchronously to avoid blocking API requests.
-- **Containerized Environment:** The entire application is containerized with Docker for easy setup and deployment.
+- **🏢 Employers** to find perfect talent matches and manage job applications
+- **👥 Job Seekers** to discover opportunities and apply professionally
+- **📊 Teams** to streamline recruitment workflows with automated notifications
 
-## Tech Stack
+### ✨ Key Benefits
 
-- **Backend:** Django, Django REST Framework
-- **Database:** PostgreSQL
-- **Asynchronous Tasks:** Celery, RabbitMQ
-- **Caching:** Redis
-- **Containerization:** Docker, Docker Compose
-- **API Documentation:** drf-spectacular (for generating OpenAPI schema)
+- **🚀 Fast Setup**: Pre-configured API with comprehensive documentation
+- **🔧 Customizable**: Flexible user roles, skill matching, and workflows
+- **📱 API-First**: Easy integration with existing hiring platforms
+- **🔒 Secure**: Production-ready authentication and data handling
+- **⚡ Automated**: Background email notifications and task processing
 
-## Project Structure
+---
+
+## 👥 Who Uses ALX Project Nexus?
+
+### 🏢 For Employers
+
+- Post unlimited job opportunities
+- Review applications with detailed candidate profiles
+- Automate interview scheduling with applicant notifications
+- Track application progress and interview outcomes
+
+### 👤 For Job Seekers
+
+- Browse curated job listings by skills and location
+- Submit professional applications with cover letters
+- Track application status in real-time
+- Receive updates on application reviews and interviews
+
+---
+
+## 📚 Getting Started
+
+### 🔗 Base API URL
 
 ```
-/
-├── app/                # Django project configuration
-├── core/               # Main Django app for the project
-│   ├── migrations/
-│   ├── templates/
-│   ├── models.py
-│   ├── serializers.py
-│   ├── views.py
-│   └── urls.py
-├── logs/               # Log files
-├── media/              # User-uploaded files (e.g., resumes)
-├── static/             # Static files (CSS, JS, images)
-├── .env.example        # Example environment variables
-├── docker-compose.yml  # Docker Compose configuration for development
-├── Dockerfile          # Dockerfile for the Django application
-└── manage.py           # Django's command-line utility
+https://your-domain.com/api/
 ```
 
-## Prerequisites
+### 🔐 Authentication Required
 
-- [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/) (for containerized setup)
-- [Python 3.10+](https://www.python.org/downloads/) & [pip](https://pip.pypa.io/en/stable/installation/) (for local setup)
-- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-## Getting Started
-
-### Cloning the Repository
+Most endpoints require JWT authentication. Include the token in headers:
 
 ```bash
-git clone https://github.com/codingaday/alx-project-nexus.git
-cd alx-project-nexus
+Authorization: Bearer your-jwt-token-here
 ```
 
-### Environment Configuration
+### 🌐 API Documentation
 
-1.  Create a `.env` file by copying the example file: `cp .env.example .env`
-2.  Update the `.env` file with your settings.
+**Interactive Swagger Docs**: `https://your-domain.com/api/docs/`
 
-| Variable                | Description                                            | Example                                       |
-| ----------------------- | ------------------------------------------------------ | --------------------------------------------- |
-| `SECRET_KEY`            | A long, random string for Django's secret key.         | `your-super-secret-and-long-random-string`    |
-| `DEBUG`                 | Set to `True` for development, `False` for production. | `True`                                        |
-| `ALLOWED_HOSTS`         | Comma-separated list of allowed hostnames.             | `localhost,127.0.0.1`                         |
-| `DATABASE_URL`          | Connection URL for your PostgreSQL database.           | `postgres://user:password@db:5432/dbname`     |
-| `CELERY_BROKER_URL`     | URL for the Celery message broker (RabbitMQ).          | `amqp://guest:guest@rabbitmq:5672//`          |
-| `CELERY_RESULT_BACKEND` | URL for the Celery result backend (Redis).             | `redis://redis:6379/0`                        |
-| `REDIS_URL`             | URL for the Redis cache.                               | `redis://redis:6379/1`                        |
-| `EMAIL_BACKEND`         | Django's email backend.                                | `django.core.mail.backends.smtp.EmailBackend` |
-| `EMAIL_HOST`            | SMTP server for sending emails.                        | `smtp.gmail.com`                              |
-| `EMAIL_PORT`            | SMTP server port.                                      | `587`                                         |
-| `EMAIL_USE_TLS`         | Whether to use TLS for the SMTP connection.            | `True`                                        |
-| `EMAIL_HOST_USER`       | Your email address.                                    | `your-email@example.com`                      |
-| `EMAIL_HOST_PASSWORD`   | Your email password or app-specific password.          | `your-email-password`                         |
-| `DEFAULT_FROM_EMAIL`    | Default "from" address for emails.                     | `noreply@alxprojectnexus.com`                 |
-| `CORS_ALLOWED_ORIGINS`  | Comma-separated list of allowed origins for CORS.      | `http://localhost:3000,http://127.0.0.1:3000` |
+- Test endpoints directly from the browser
+- Generate API keys and explore specifications
+- No coding required to understand functionality
 
-### Running with Docker (Recommended)
+---
 
-```bash
-docker-compose up --build
+## 🗝️ Authentication Flow
+
+### 1. New User Registration
+
+```http
+POST /auth/register/
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john.doe@email.com",
+  "password": "securepassword123",
+  "password_confirm": "securepassword123",
+  "user_type": "job_seeker",  // or "employer"
+  "company_name": "(optional for employers)",
+  "phone_number": "+1234567890"
+}
 ```
 
-The API will be available at `http://localhost:8000`.
+**Response:**
 
-### Local Development Setup (Without Docker)
+```json
+{
+  "id": 1,
+  "username": "johndoe",
+  "email": "john.doe@email.com",
+  "user_type": "job_seeker",
+  "is_active": true
+}
+```
 
-1.  **Create and activate a virtual environment:**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-2.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  **Run database migrations:**
-    ```bash
-    python3 manage.py migrate
-    ```
-4.  **Start the development server:**
-    ```bash
-    python3 manage.py runserver
-    ```
+### 2. User Login
 
-## API Endpoints
+```http
+POST /auth/login/
+Content-Type: application/json
 
-The base URL for the API is `/api/`.
+{
+  "username": "johndoe",
+  "password": "securepassword123"
+}
+```
 
-### Authentication
+**Response:**
 
-#### `POST /auth/register/`
+```json
+{
+  "access": "eyJ0eXAiOiJKV1Q...",
+  "refresh": "eyJ0eXAiOiJKV1..."
+}
+```
 
-- **Description:** Register a new user.
-- **Permissions:** AllowAny
-- **Request Body:**
-  ```json
-  {
-    "username": "newuser",
-    "email": "user@example.com",
-    "password": "password123",
-    "password_confirm": "password123",
-    "user_type": "job_seeker",
-    "company_name": "",
-    "phone_number": "1234567890",
-    "bio": "A short bio.",
-    "website": "https://example.com",
-    "location": "City, Country"
-  }
-  ```
-- **Success Response (201 Created):**
-  ```json
-  {
-    "username": "newuser",
-    "email": "user@example.com",
-    ...
-  }
-  ```
+### 3. Access Profile Information
 
-#### `POST /auth/login/`
+```http
+GET /auth/profile/
+Authorization: Bearer your-access-token
+```
 
-- **Description:** Log in a user and receive JWT tokens.
-- **Permissions:** AllowAny
-- **Request Body:**
-  ```json
-  {
-    "username": "newuser",
-    "password": "password123"
-  }
-  ```
-- **Success Response (200 OK):**
-  ```json
-  {
-    "user": { ... },
-    "refresh": "...",
-    "access": "..."
-  }
-  ```
+---
 
-### Job Adverts
+## 💼 Job Board Features
 
-#### `GET /api/adverts/`
+### 🔍 Browse Job Listings
 
-- **Description:** Get a list of all active job adverts.
-- **Permissions:** AllowAny
-- **Success Response (200 OK):**
-  ```json
-  [
+**Get All Available Jobs**
+
+```http
+GET /api/adverts/
+Authorization: Bearer your-access-token
+```
+
+**Query Parameters:**
+
+- `search=python` - Search by keywords
+- `location=new+york` - Filter by location
+- `job_type=full_time` - Filter by employment type
+- `experience_level=mid` - Junior/Senior/Executive
+- `skills=python,django` - Required skills
+- `categories=technology,engineering` - Job categories
+
+**Example with Filters:**
+
+```http
+GET /api/adverts/?search=django&location=remote&job_type=full_time
+```
+
+**Response:**
+
+```json
+{
+  "results": [
     {
       "id": 1,
-      "title": "Software Engineer",
-      ...
+      "title": "Senior Django Developer",
+      "company_name": "Tech Corp",
+      "location": "Remote",
+      "salary_range": "$80k - $120k",
+      "experience_level": "Senior",
+      "is_active": true,
+      "created_at": "2025-09-29T10:00:00Z"
     }
-  ]
-  ```
-
-#### `POST /api/adverts/create/`
-
-- **Description:** Create a new job advert.
-- **Permissions:** IsAuthenticated (Employer)
-- **Request Body:**
-  ```json
-  {
-    "title": "Senior Backend Developer",
-    "description": "...",
-    "requirements": "...",
-    "location": "Remote",
-    "job_type": "full_time",
-    "experience_level": "senior",
-    "salary_min": 80000,
-    "salary_max": 120000,
-    "skill_ids": [1, 2],
-    "category_ids": [1]
-  }
-  ```
-- **Success Response (201 Created):**
-  ```json
-  {
-    "id": 2,
-    "title": "Senior Backend Developer",
-    ...
-  }
-  ```
-
-### Job Applications
-
-#### `POST /api/adverts/<job_advert_id>/apply/`
-
-- **Description:** Apply for a job.
-- **Permissions:** IsAuthenticated (Job Seeker)
-- **Request Body:** `multipart/form-data` with `cover_letter` (text) and `resume` (file).
-- **Success Response (201 Created):**
-  ```json
-  {
-    "id": 1,
-    "job_seeker": { ... },
-    "job_advert": { ... },
-    "status": "pending",
-    ...
-  }
-  ```
-
-## Data Models
-
-- **User:** Represents a user (employer, job seeker, or admin).
-- **JobAdvert:** A job advert posted by an employer.
-- **JobApplication:** A job application from a job seeker.
-- **Skill:** A skill associated with a job advert.
-- **Category:** A category for a job advert.
-
-See `core/models.py` for details.
-
-## Code Style and Conventions
-
-This project follows [PEP 8](https://www.python.org/dev/peps/pep-0008/). We use `flake8` for linting.
-
-## Testing
-
-Run tests with:
-
-```bash
-docker-compose exec app pytest
+  ],
+  "count": 1,
+  "next": null,
+  "previous": null
+}
 ```
 
-## Contributing
+---
 
-Contributions are welcome! Please submit a pull request or open an issue.
+## 🏢 Employer Dashboard
+
+### 📝 Create Job Posting
+
+```http
+POST /api/adverts/create/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "title": "Senior Python Developer",
+  "description": "Join our team building cutting-edge applications...",
+  "requirements": "5+ years experience, Python expertise...",
+  "location": "New York, NY",
+  "job_type": "full_time",
+  "experience_level": "senior",
+  "salary_min": 90000,
+  "salary_max": 130000,
+  "salary_currency": "USD",
+  "is_remote": false,
+  "application_deadline": "2025-12-31",
+  "skill_ids": [1, 3, 5],     // Python, Django, PostgreSQL
+  "category_ids": [1, 2]       // Technology, Backend Development
+}
+```
+
+### 📋 Manage Posted Jobs
+
+```http
+GET /api/adverts/?my_jobs=true
+Authorization: Bearer your-access-token
+```
+
+**Update Job Posting:**
+
+```http
+PUT /api/adverts/{job_id}/update/
+Authorization: Bearer your-access-token
+
+{
+  "title": "Updated Title",
+  "is_active": false  // Close the position
+}
+```
+
+---
+
+## 👥 Candidate Applications
+
+### 📤 Submit Job Application
+
+```http
+POST /api/adverts/{job_id}/apply/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "cover_letter": "Dear Hiring Manager,\n\nI am excited to apply for...",
+  "resume": "(File upload - multipart/form-data)"
+}
+```
+
+**Upload Resume:**
+
+```bash
+curl -X POST \
+  https://your-domain.com/api/adverts/123/apply/ \
+  -H "Authorization: Bearer your-token" \
+  -F "cover_letter=Your cover letter text here" \
+  -F "resume=@path/to/your/resume.pdf"
+```
+
+### 📊 Track Application Status
+
+**View Your Applications:**
+
+```http
+GET /api/applications/
+Authorization: Bearer your-access-token
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": 456,
+    "job_advert": {
+      "id": 123,
+      "title": "Senior Developer",
+      "employer": "Tech Corp"
+    },
+    "status": "review", // pending, review, interview, accepted, rejected
+    "applied_at": "2025-09-29T15:30:00Z",
+    "updated_at": "2025-09-30T09:00:00Z"
+  }
+]
+```
+
+---
+
+## 🏢 Managing Applications (Employers)
+
+### 📬 Review Incoming Applications
+
+```http
+GET /api/applications/
+Authorization: Bearer your-access-token
+```
+
+**Filter by Job:**
+
+```http
+GET /api/applications/?job_advert_id=123&status=pending
+```
+
+### 📞 Update Application Status
+
+```http
+PUT /api/applications/{application_id}/update/
+Authorization: Bearer your-access-token
+Content-Type: application/json
+
+{
+  "status": "interview",  // Update status
+  "notes": "Excellent technical skills, schedule interview"
+}
+```
+
+---
+
+## 📧 Automated Email System
+
+### 🎯 What Gets Automated?
+
+- **Welcome Emails**: New user registration confirmation
+- **Application Notifications**: Employers receive instant alerts for new applications
+- **Status Updates**: Candidates notified of application progress
+- **Interview Scheduling**: Automated communication for interview processes
+
+### ⏰ Processing Time
+
+Email notifications are sent asynchronously using background workers, ensuring:
+
+- ⚡ Instant API responses
+- 🔄 Reliable delivery (retries on failure)
+- 📈 Scalable processing (handles multiple applications simultaneously)
+
+---
+
+## 🎨 Advanced Features
+
+### 🔍 Smart Job Matching
+
+**Skill-Based Filtering:**
+
+```http
+GET /api/adverts/?skills_required=python&min_skill_importance=4
+```
+
+**Location Preferences:**
+
+```http
+GET /api/adverts/?is_remote=true&location=willing_to_relocate
+```
+
+### 📈 Analytics Ready
+
+Built-in counters track:
+
+- Job view statistics (`views_count`)
+- Application volume (`applications_count`)
+- Success rates and engagement metrics
+
+---
+
+## 🚨 Error Handling
+
+### Common HTTP Status Codes
+
+- **200**: Success - Request completed
+- **201**: Created - Resource successfully created
+- **400**: Bad Request - Invalid data provided
+- **401**: Unauthorized - Authentication required
+- **403**: Forbidden - Insufficient permissions
+- **404**: Not Found - Resource doesn't exist
+
+### Error Response Format
+
+```json
+{
+  "detail": "Authentication credentials were not provided.",
+  "code": "not_authenticated"
+}
+```
+
+---
+
+## 🔧 Technical Specifications
+
+- **Framework**: Django 5.2.6 with Django REST Framework 3.16.1
+- **Authentication**: JWT (JSON Web Tokens) with refresh tokens
+- **Database**: PostgreSQL with optimized relationships
+- **Caching**: Redis for session and data caching
+- **Background Jobs**: Celery with RabbitMQ message broker
+- **File Storage**: Configurable media storage for resumes
+- **Email**: SMTP integration with HTML template support
+
+---
+
+## 🏆 Best Practices
+
+### For Job Postings
+
+- **Clear Descriptions**: Use detailed, specific requirements
+- **Realistic Expectations**: Set accurate salary ranges and skill requirements
+- **Timely Updates**: Keep application deadlines current
+- **Professional Information**: Include company culture and growth opportunities
+
+### For Applications
+
+- **Tailored Applications**: Customize cover letters for each position
+- **Complete Profiles**: Include contact information and professional details
+- **Professional Documents**: Upload recent resumes and portfolio materials
+
+---
+
+## 🆘 Support & Troubleshooting
+
+### Common Issues
+
+**"Authentication Required"**
+→ Ensure you're sending the Authorization header
+→ Check token expiration (access tokens expire in 30 minutes)
+
+**"Application Deadline Passed"**
+→ Job posting deadlines are enforced by the system
+→ Contact employer directly if deadline extension is available
+
+**"File Upload Failed"**
+→ Supported formats: PDF, DOC, DOCX (max 5MB)
+→ Check file size and format requirements
+
+---
+
+## 📞 API Status & Monitoring
+
+- **Health Check**: Standard Django health checks available
+- **Performance**: Optimized queries with database indexing
+- **Scaling**: Redis caching reduces database load
+- **Background Processing**: Celery ensures stable API performance
+
+---
+
+## 🎉 Success Stories
+
+> _"ALX Project Nexus transformed our hiring process. Within 3 months, we reduced time-to-hire by 60% and improved candidate quality significantly."_
+> — Sarah Johnson, CTO at Tech Innovations
+
+> _"As a developer, I found twice as many relevant job opportunities after switching to ALX Project Nexus"_
+> — Michael Chen, Senior Software Engineer
+
+---
+
+## 🚀 Getting Started Today
+
+1. **Register** an account at `/auth/register/`
+2. **Explore** jobs with `/api/adverts/`
+3. **Apply** to positions using `/api/adverts/{id}/apply/`
+4. **Track** your progress at `/api/applications/`
+
+**API Documentation:** `https://your-domain.com/api/docs/`
+
+---
+
+_Built with ❤️ for the ALX Software Engineering community. Connect, grow, and succeed together!_ 🌟

@@ -1,0 +1,56 @@
+# Local development overrides
+
+services:
+  app:
+    # Local Django app will run outside of Docker
+    profiles: ["no-local-app"]
+
+  # Local PostgreSQL for development
+  db-local:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: alx_project_nexus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    profiles: ["postgres-local"]
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI port
+      - "15692:15692" # Prometheus metrics port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  celery:
+    profiles: ["no-celery"] # Disable Docker celery when using local setup
+
+  # Local development services (RabbitMQ management with local ports)
+  rabbitmq-local:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5673:5672" # Local AMQP port (5673 to avoid conflicts)
+      - "15673:15672" # Local Management UI port (15673)
+      - "15693:15692" # Local Prometheus metrics port
+    volumes:
+      - rabbitmq_local_data:/var/lib/rabbitmq
+    profiles: ["rabbitmq-local"]
+
+volumes:
+  rabbitmq_data:
+  rabbitmq_local_data:
+  db_data:

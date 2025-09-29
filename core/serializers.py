@@ -7,20 +7,20 @@ from .models import User, JobAdvert, JobApplication, Skill, Category, JobAdvertS
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
-    
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password_confirm', 
-                 'user_type', 'company_name', 'phone_number', 'bio', 
+        fields = ('username', 'email', 'password', 'password_confirm',
+                 'user_type', 'company_name', 'phone_number', 'bio',
                  'website', 'location')
-    
+
     def validate(self, data):
-        if data['password'] != data['password_confirm']:
+        if data.get('password') != data.get('password_confirm'):
             raise serializers.ValidationError(_("Passwords do not match."))
         return data
-    
+
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
+        validated_data.pop('password_confirm', None)
         password = validated_data.pop('password')
         user = User.objects.create_user(**validated_data)
         user.set_password(password)

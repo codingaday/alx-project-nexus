@@ -4,6 +4,7 @@ services:
       context: .
       args:
         - DEV=true
+        - SECRET_KEY=django-insecure-w1!)bg04sxez7q_36bsg2g0!tc8y4s2u*zcb6!^_ds%sft@&jv
     ports:
       - "8000:8000"
     volumes:
@@ -12,16 +13,19 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     env_file:
-      - .env
+      - .env.docker
     depends_on:
       - db
       - redis
-      - rabbitmq
 
   db:
     image: postgres:15-alpine
     volumes:
       - dev-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: alx_project_nexus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     env_file:
       - .env
 
@@ -32,12 +36,16 @@ services:
     image: rabbitmq:3-management-alpine
 
   celery:
-    build: .
+    build:
+      context: .
+      args:
+        - DEV=true
+        - SECRET_KEY=django-insecure-w1!)bg04sxez7q_36bsg2g0!tc8y4s2u*zcb6!^_ds%sft@&jv
     command: celery -A app worker -l info
     volumes:
       - .:/app
     env_file:
-      - .env
+      - .env.docker
     depends_on:
       - rabbitmq
 
