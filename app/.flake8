@@ -6,7 +6,7 @@ exclude =
     settings.py ,
     .venv,
     *.pyc,
-    core/management/commands/seed_data.py  # Exclude seed data (high error count)
+    core/management/commands/seed_data.py  
 
 ignore =
     E122,
@@ -26,4 +26,4 @@ ignore =
     F811,
     F841
 
-max-line-length = 150  # Increased for Django template strings and imports
+max-line-length = 150
