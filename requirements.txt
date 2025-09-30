@@ -15,6 +15,7 @@ django-extensions==3.2.3
 django-filter==25.1
 django-redis==5.4.0
 django-sslserver==0.22
+django-crispy-forms==2.3
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
 drf-spectacular==0.28.0

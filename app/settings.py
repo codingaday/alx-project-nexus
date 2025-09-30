@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'django_filters',
+    'crispy_forms',
     'django_extensions',
     'core',
 ]
