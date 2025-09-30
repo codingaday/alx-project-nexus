@@ -132,6 +132,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false # Set to true for production deployments
+          load: true
           tags: alx-project-nexus:latest
           build-args: |
             SECRET_KEY=django-insecure-ci-build-key-only-for-docker-testing
