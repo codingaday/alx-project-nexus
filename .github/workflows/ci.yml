@@ -42,7 +42,7 @@ jobs:
 
       - name: 🧹 Lint Code
         run: |
-          flake8 --exclude=./.venv/,migrations,__pycache__ --max-line-length=100
+          flake8 --config app/.flake8
 
       - name: 🔧 Check Django Configurations
         run: |
