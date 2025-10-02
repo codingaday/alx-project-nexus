@@ -436,17 +436,6 @@ Built-in counters track:
 - **Scaling**: Redis caching reduces database load
 - **Background Processing**: Celery ensures stable API performance
 
----
-
-## 🎉 Success Stories
-
-> _"ALX Project Nexus transformed our hiring process. Within 3 months, we reduced time-to-hire by 60% and improved candidate quality significantly."_
-> — Sarah Johnson, CTO at Tech Innovations
-
-> _"As a developer, I found twice as many relevant job opportunities after switching to ALX Project Nexus"_
-> — Michael Chen, Senior Software Engineer
-
----
 
 ## 🚀 Getting Started Today
 
