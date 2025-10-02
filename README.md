@@ -52,7 +52,7 @@ A professional job board platform that bridges the gap between employers and ski
 ### 🔗 Base API URL
 
 ```
-https://your-domain.com/api/
+https://alx-project-nexus-5-ivj6.onrender.com/
 ```
 
 ### 🔐 Authentication Required
@@ -65,7 +65,7 @@ Authorization: Bearer your-jwt-token-here
 
 ### 🌐 API Documentation
 
-**Interactive Swagger Docs**: `https://your-domain.com/api/docs/`
+**Interactive Swagger Docs**: `https://alx-project-nexus-5-ivj6.onrender.com/api/docs/`
 
 - Test endpoints directly from the browser
 - Generate API keys and explore specifications
@@ -455,7 +455,7 @@ Built-in counters track:
 3. **Apply** to positions using `/api/adverts/{id}/apply/`
 4. **Track** your progress at `/api/applications/`
 
-**API Documentation:** `https://your-domain.com/api/docs/`
+**API Documentation:** `https://alx-project-nexus-5-ivj6.onrender.com/api/docs/`
 
 ---
 
